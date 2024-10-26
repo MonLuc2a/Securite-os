@@ -41,23 +41,23 @@ systemctl restart sshd
 # Mettre à jour et redémarrer pour Secure Boot
 dnf update -y
 
-# Ajouter les dépôts RPM Fusion
-# dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-# dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-
 # Installer des extensions et applications nécessaires
 dnf install -y lynis rkhunter usbguard clamav clamav-update
 
 # Configurer ClamAV (anti-virus)
 freshclam
-systemctl enable clamd
-systemctl start clamd
+systemctl enable clamav-freshclam
+systemctl start clamav-freshclam
 
 # Désactiver et masquer les services inutiles
 services=(pcscd.socket pcscd.service cups wpa_supplicant.service ModemManager.service bluetooth.service avahi-daemon.service nis-domainname.service sssd.service sssd-kcm.service rpcbind.service gssproxy.service nfs-client.target)
 for service in "${services[@]}"; do
-  systemctl disable --now $service
-  systemctl mask $service
+  if systemctl list-unit-files | grep -q "$service"; then
+    systemctl disable --now $service
+    systemctl mask $service
+  else
+    echo "Service $service does not exist, skipping."
+  fi
 done
 
 # Modifier les paramètres de logind.conf
@@ -189,10 +189,9 @@ fi
 
 systemctl restart sshd
 
-
 # Configurer rkhunter
 rkhunter --propupd
 rkhunter --update
 rkhunter --check --sk
 
-echo "Script de renforcement de sécurité terminé. Veuillez redémarrer votre système pour appliquer toutes les modifications."
+echo "Script de renforcement de sécurité terminé. Veuillez redémarrer votre système pour appliquer toutes les modifications
