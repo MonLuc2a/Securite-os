@@ -67,7 +67,7 @@ echo -e "NAutoVTs=0\nReserveVT=N" >> /etc/systemd/logind.conf
 grubby --update-kernel=ALL --args="ipv6.disable=1"
 
 # Configurer NetworkManager pour la confidentialité IPv6
-echo -e "[connection]\nipv6.ip6-privacy=2" >> /etc/NetworkManager/NetworkManager.conf
+# echo -e "[connection]\nipv6.ip6-privacy=2" >> /etc/NetworkManager/NetworkManager.conf
 
 # Modifier les limites de sécurité
 echo -e "hard core 0" >> /etc/security/limits.conf
